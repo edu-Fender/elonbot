@@ -56,6 +56,7 @@ def get_rules() -> Dict:
         raise Exception(
             "Cannot get rules (HTTP {}): {}".format(response.status_code, response.text)
         )
+    print(json.dumps(response.json()))
     return response.json()
 
 
