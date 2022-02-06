@@ -25,7 +25,7 @@ class ElonBot:
                  message: str,
                  endpoint: str,
                  process_tweet_text: Optional[str]):
-        self.user = user
+        self.user = user.lower()
         self.crypto_rules = crypto_rules
         self.message = message
         self.endpoint = endpoint
@@ -99,7 +99,7 @@ class ElonBot:
 
     def process_tweet(self, tweet: str):
         tweet = json.loads(tweet)
-        if tweet["user"]["screen_name"] == self.user:
+        if tweet["user"]["screen_name"].lower() == self.user:  # Lower is important, python string comparison is case sensitive
             """
             Note: time.time() returns GMT+0 while status.created_at indicates UTC time. GMT and UTC are basically the same
             """

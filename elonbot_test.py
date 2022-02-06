@@ -1,5 +1,4 @@
 ## 44196397 => Elon Musks's Twitter ID
-## Terminal test: python elonbot.py -m "do this now low" -e "git "
 
 import os
 import unittest
@@ -23,7 +22,7 @@ class ElonBotTest(unittest.TestCase):
             '{"data": {"text": "Dodge coin is not what we need", "created_at": "2020-07-10T15:00:00.000Z"}, "includes": {"media": [{"url": "..."}]}}')
 
     def test_get_user_id(self):
-        bot = ElonBot("edy_fender", 'doge', "delay was lesser then 10", "https://webhook.site/4aee92fd-ae15-4c03-99dc-964f9dc43129", None)
+        bot = ElonBot("feiGincRaiG", 'doge', "delay was lesser then 10", "https://webhook.site/4aee92fd-ae15-4c03-99dc-964f9dc43129", None)
         user_id = bot.get_user_id()
         print(user_id)
 
