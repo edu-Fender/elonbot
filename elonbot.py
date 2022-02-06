@@ -84,7 +84,7 @@ class ElonBot:
 
         try:
             user = api.get_user(screen_name=self.user)
-            return user._json["id_str"]
+            return user.id_str
 
         except tweepy.errors.NotFound:
             log("Error: Couldn't find user '{}' on twitter".format(self.user))
@@ -152,7 +152,8 @@ class ElonBot:
         while True:
             try:
                 log('Subscribing to twitter updates...')
-                stream.filter(follow=[self.get_user_id()])
+                user_id = self.get_user_id()
+                stream.filter(follow=[user_id])
             except Exception as ex:
                 log(ex, 'restarting socket...')
                 time.sleep(60)
