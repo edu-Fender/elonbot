@@ -38,7 +38,7 @@ class ElonBot:
         log('  Webhook Endpoint:', endpoint)
 
     # TODO: Optical Character Recognition (OCR)
-    '''
+
     @staticmethod
     def get_image_text(uri: str) -> str:
         """Detects text in the file located in Google Cloud Storage or on the Web.
@@ -72,7 +72,6 @@ class ElonBot:
             log('Please, provide GOOGLE_APPLICATION_CREDENTIALS environment variable. '
                 'Check https://github.com/vslaykovsky/elonbot for details')
         return google_test
-    '''
 
     def get_user_id(self) -> str:
 
@@ -98,11 +97,12 @@ class ElonBot:
         return None
 
     def process_tweet(self, tweet: str):
+        """ Notes:
+        time.time() returns GMT+0 while status.created_at indicates UTC time. GMT and UTC are basically the same
+        Lower is important, python string comparison is case sensitive
+        """
         tweet = json.loads(tweet)
-        if tweet["user"]["screen_name"].lower() == self.user:  # Lower is important, python string comparison is case sensitive
-            """
-            Note: time.time() returns GMT+0 while status.created_at indicates UTC time. GMT and UTC are basically the same
-            """
+        if tweet["user"]["screen_name"].lower() == self.user:
             delay = time.time() - datetime.timestamp(datetime.strptime(tweet["created_at"], '%a %b %d %X %z %Y'))
             log("Tweet received!\n")
             log(json.dumps(tweet, indent=4, sort_keys=True))
@@ -171,12 +171,12 @@ if __name__ == "__main__":
     parser.add_argument('--endpoint', '-e', required=True,
                         help='Webhook Endpoint (URL) to where the messages will be send to')
 
-    parser.add_argument('--user', '-u', help='Twitter user to follow. Please remember not to enter \'@\'. Default: elonmusk)',
+    parser.add_argument('--user', '-u', help='Twitter user to follow. Please remember not to enter "@". Default: "elonmusk"',
                         default="elonmusk")
 
     parser.add_argument('--crypto-rules', '-c', default="doge",
-                        help='\n\nName of the crypto(s) that will be searched on the tweet. '
-                             'If crypto is found, webhook is sent. Default: doge')
+                        help='\n\nName of the crypto that will be searched on the tweet. '
+                             'If crypto is found, webhook is sent. Default: "doge"')
 
     parser.add_argument('--process-tweet', default=None,
                         help="Don't subscribe to Twitter feed, only process a single tweet provided as a json string. "
@@ -188,4 +188,6 @@ if __name__ == "__main__":
                   args.message,
                   args.endpoint,
                   args.process_tweet)
+    if not bot.validate_env(verbose=True):
+        sys.exit(-1)
     bot.run()
