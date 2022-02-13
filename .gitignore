@@ -151,7 +151,9 @@ crashlytics-build.properties
 fabric.properties
 
 # Leftovers
-GUI.py
 test.py
 elonbot_test.py
+output.log
+validation
+aws
 rubish

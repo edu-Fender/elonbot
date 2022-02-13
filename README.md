@@ -18,6 +18,10 @@ pip install requests tweepy google-cloud-vision unidecode
 
 ## Running
 
+1. Set the Twitter API 1.1v credentials at the beginning of elonbot.py
+    * You will notice the Twitter Oauth variables are assigned to a json file that is not part of this repository 
+      (for obvious reasons)
+    * Just change the value of these variables with your own credentials if you don't want to store them in a file
 1. [Optional] Add image text recognition support with Google OCR
     * Use the [following documentation](https://cloud.google.com/vision/docs/setup) to access Google Vision API
     * Export path to your google vision configuration. 
@@ -48,18 +52,19 @@ python elonbot.py --user="jeffbezos" --crypto-rules="btc" --message="this is a w
 Get help:
 ```shell
 (base) C:\Users\anewe\PycharmProjects\elonbot>python elonbot.py --help
-usage: elonbot.py [-h] --message MESSAGE --endpoint ENDPOINT [--user USER] [--crypto-rules CRYPTO_RULES] [--process-tweet PROCESS_TWEET]
+usage: elonbot.py [-h] --message MESSAGE --endpoints ENDPOINTS [--user USER] [--crypto-rules CRYPTO_RULES] [--user-image-signal] [--process-tweet TWEET_TO_PROCESS]
 
 optional arguments:
   -h, --help            show this help message and exit
   --message MESSAGE, -m MESSAGE
-                        Message that will be sent to the webhook endpoint
-  --endpoint ENDPOINT, -e ENDPOINT
-                        Webhook Endpoint (URL) to where the messages will be send to
-  --user USER, -u USER  Twitter user to follow. Please remember not to enter "@". Default: "elonmusk"
+                        Message that will be sent to the webhook endpoints
+  --endpoints ENDPOINTS, -e ENDPOINTS
+                        Webhook endpoints (URL) to where the messages will be sent. PLEASE, separate the values with COMMA
+  --user USER, -u USER  Twitter user to follow. PLEASE remember not to enter "@". Default: elonmusk
   --crypto-rules CRYPTO_RULES, -c CRYPTO_RULES
-                        Name of the crypto that will be searched on the tweet. If crypto is found, webhook is sent. Default: "doge"
-  --process-tweet PROCESS_TWEET
+                        Name of the crypto that will be searched on the tweet. If crypto is found, webhook is sent. PLEASE, separate the values with COMMA. Default: doge
+  --user-image-signal   Extract text from attached twitter images using Google OCR. ATTENTION: May increase latency
+  --process-tweet TWEET_TO_PROCESS
                         Don't subscribe to Twitter feed, only process a single tweet provided as a json string. Useful for test whether the RegEx and crypto rules are working properly
 
 ```

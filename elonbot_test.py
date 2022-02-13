@@ -1,8 +1,8 @@
 # 1487797973853614087 => My Twitter ID
 # 44196397 => Elon Musk's Twitter ID
-# https://webhook.site/4aee92fd-ae15-4c03-99dc-964f9dc43129? => My Webhook !
+# https://webhook.site/4aee92fd-ae15-4c03-99dc-964f9dc43129?,
+# https://web.hook.sh/bc88e3d7-96f1-4f65-8a5a-201012e4b3fd => My Webhook !
 
-import os
 import unittest
 from unittest.mock import patch
 
@@ -11,10 +11,6 @@ from elonbot import ElonBot
 
 
 class ElonBotTest(unittest.TestCase):
-
-    #TODO: Optical Character Recognition (OCR)
-    def setUp(self) -> None:
-        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'xAIzaSyCvblgUIvkYZU7Aco0bMVrqaQtFy0GZbOY' #'GOOGLE_APPLICATION_CREDENTIALS'
 
     def test_trigger(self):
         bot = ElonBot("edy_fender", "doge", "delay was lesser then 10", "https://webhook.site/4aee92fd-ae15-4c03-99dc-964f9dc43129", None)
@@ -25,20 +21,15 @@ class ElonBotTest(unittest.TestCase):
 
     #@patch.object(elonbot.ElonBot, 'get_image_text', lambda url: '')
     def test_ocr(self):
-        a = ElonBot.get_image_text('https://academy.bit2me.com/wp-content/uploads/2021/07/Dogecoin-bit2meacademy.png')
-        print(a)
+        bot = ElonBot("edy_fender", 'doge', "delay was lesser then 10", "https://webhook.site/4aee92fd-ae15-4c03-99dc-964f9dc43129", False, None)
+        a = bot.get_image_text("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlmMGS_wWmQVKBEeG0u3sfFsNeJ0a4S5CT5A&usqp=CAU")
 
     def test_get_user_id(self):
-        bot = ElonBot("edy_fender", 'doge', "delay was lesser then 10", "https://webhook.site/4aee92fd-ae15-4c03-99dc-964f9dc43129", None)
+        bot = ElonBot("edy_fenderxdxd", 'doge', "delay was lesser then 10", "https://webhook.site/4aee92fd-ae15-4c03-99dc-964f9dc43129", False, None)
         user_id = bot.get_user_id()
         print(user_id)
 
     def test_run(self):
-        bot = ElonBot("edy_fender", "doge", """Mainacc(BTCUSD) {
-Cancel(which=all);
-Market(position=0);
-managed(side=sell, amount=100, entry=market, stoploss=200, takeprofit=175);
-}
-#bot""", "https://webhook.site/4aee92fd-ae15-4c03-99dc-964f9dc43129?", None)
+        bot = ElonBot("edy_fender", "doge, btc,etherium", "oioi", "https://webhook.site/4aee902fd-ae15-4c03-99dc-964f9dc43129?, https://web.hook.sh/bc88e3d7-96f1-4f65-8a5a-201012e4b3fd", True, None)
         bot.run()
 
