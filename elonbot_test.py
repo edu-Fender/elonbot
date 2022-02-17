@@ -29,7 +29,12 @@ class ElonBotTest(unittest.TestCase):
         user_id = bot.get_user_id()
         print(user_id)
 
+    def test_webhook(self):
+        bot = ElonBot("edy_fender", ["doge", "btc", "etherium"],
+                      [["oioi", "https://whook.site/4aee92fd-ae15-4c03-99dc-964f9dc43129?", 4]], True, None)
+        bot.webhook()
+
     def test_run(self):
-        bot = ElonBot("edy_fender", "doge, btc,etherium", "oioi", "https://webhook.site/4aee902fd-ae15-4c03-99dc-964f9dc43129?, https://web.hook.sh/bc88e3d7-96f1-4f65-8a5a-201012e4b3fd", True, None)
+        bot = ElonBot("edy_fender", ["doge", "btc", "etherium"], [["oioi", "https://wehook.site/4aee92fd-ae15-4c03-99dc-964f9dc43129?", 4]], True, None)
         bot.run()
 
