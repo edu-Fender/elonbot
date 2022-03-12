@@ -1,4 +1,5 @@
 import concurrent.futures
+import logging
 import argparse
 import textwrap
 import json
@@ -48,6 +49,8 @@ class ElonBot:
         log('  Use image text detection:', self.use_image_signal)
         log('  Process tweet text: ', self.process_tweet_text)
 
+
+
     @staticmethod
     def get_image_text(uri: str) -> str:
         """Detects text in the file located in Google Cloud Storage or on the Web.
@@ -90,6 +93,47 @@ class ElonBot:
             log("Error: Couldn't find user '{}' on twitter".format(username))
             return ''
 
+    def validate_input(self) -> bool:
+        # Validate twitter user
+        if self.get_user_id() == '':
+            log("Error: Check your twitter user and try again")
+            return False
+
+        # Validate message_params inputs
+        for message in self.message_params:
+            # Validate URL format with regex
+            if re.search(r"^https*://", message["endpoint"]) is None:
+                log(F"Error: URLs must start with http:// or https://. Please check your message params "
+                    F"(ID: {message['id']}) and try again")
+                return False
+
+            try:
+                # Check if URL exists with requests
+                requests.get(message["endpoint"])
+
+                # Validate number_of_requests parameter
+                int(message["number_of_requests"])
+
+            except requests.exceptions.ConnectionError:
+                log(f"Couldn't find the webhook URL. Please check your message params "
+                    f"(ID: {message['id']}) and try again")
+                return False
+
+            except ValueError:
+                log(F"Error: NUMBER_OF_REQUESTS must be an integer. Please check your message params "
+                    F"(ID: {message['id']}) and try again")
+                return False
+
+            # Validate if number_of_requests is between the allowed interval
+            n = int(message["number_of_requests"])
+            if 1 > n or n > 10:
+                log(F"Error: NUMBER_OF_REQUESTS MIN is 1 and MAX is 10. Please check your message params "
+                    F"(ID: {message['id']})and try again")
+                return False
+
+        # If everything goes OK:
+        return True
+
     def webhook(self) -> None:
         # This helper function will be called inside the ThreadPoolExecutor to send the requests in a parallel fashion
         def send_webhook():
@@ -106,7 +150,7 @@ class ElonBot:
         for message in self.message_params:
             # Applying parallelism
             with concurrent.futures.ThreadPoolExecutor() as executor:
-                for i in range(int(message["number_of_requests"])):  # This is the of times the message will be sent
+                for i in range(int(message["number_of_requests"])):  # This is the number of times the message will be sent
                     executor.submit(send_webhook)
 
         return None
@@ -122,7 +166,6 @@ class ElonBot:
             log("Tweet received!\n")
             log(json.dumps(tweet, indent=4, sort_keys=True))
             log("DELAY: {}".format(delay))
-
             tweet_text = tweet["text"]
 
             if self.use_image_signal is True:
@@ -133,9 +176,19 @@ class ElonBot:
             for re_pattern in self.crypto_rules:
                 t = unidecode(tweet_text)
                 if re.search(re_pattern, t, flags=re.I) is not None:
+
+                    # Check if the word where re_pattern was found starts with '@'
+                    matches = re.findall(rf"(?:^|\s)((?=[\w@]*{re_pattern})[\w@]+)\s", t, flags=re.I)
+                    for match in matches:
+                        if match[0] != '@':
+                            break
+                    else:
+                        return
+
                     log(f'Tweet matched pattern {re_pattern}, sending webhook!')
+
                     self.webhook()
-                    return None
+                    return
 
             log(f'Tweet didn\'t match the pattern {self.crypto_rules}')
         return None
@@ -146,39 +199,26 @@ class ElonBot:
             self.process_tweet(self.process_tweet_text)
             return
 
-        # Validate twitter user
-        if self.get_user_id() == '':
-            log("Error: Check your twitter user and try again")
+        # Validate inputs
+        if self.validate_input() is False:
             return
 
-        for message in self.message_params:
-            # Validate URL with regex
-            if re.search(r"^https*://", message["endpoint"]) is None:
-                log(F"Error: URLs must start with http:// or https://. Please check your message params "
-                    F"(ID: {message['id']}) and try again")
-                return
+        # %(msecs)06d -> this is the micro-seconds adjustment,
+        # as time.strptime doesn't have format placeholder for milliseconds
+        log_formatter = logging.Formatter("%(asctime)s.%(msecs)06d %(message)s", "%Y-%m-%d %H:%M:%S")
 
-            try:
-                # Validate URL with requests
-                a = requests.get(message["endpoint"])
-                print(a)
+        file_handler = logging.FileHandler(f"log/output-{datetime.now().date()}.log", 'a')
+        file_handler.setFormatter(log_formatter)
 
-                # Validate number_of_requests parameter
-                n = int(message["number_of_requests"])
-                if 1 > n or n > 10:
-                    log(F"Error: NUMBER_OF_REQUESTS MIN is 1 and MAX is 10. Please check your message params "
-                        F"(ID: {message['id']})and try again")
-                    return
-            except requests.exceptions.ConnectionError:
-                log(f"Couldn't find the webhook URL. Please check your message params "
-                    f"(ID: {message['id']}) and try again")
-                return
-            except ValueError:
-                log(F"Error: NUMBER_OF_REQUESTS must be an integer. Please check your message params "
-                    F"(ID: {message['id']}) and try again")
-                return
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(log_formatter)
 
-        class Streamer(tweepy.Stream):  # Override on_status method of tweepy class to send the data to ElonBot.process_tweet()
+        tweepy.streaming.log.addHandler(file_handler)
+        tweepy.streaming.log.addHandler(console_handler)
+
+        # Override on_status method of tweepy class to send the data to ElonBot.process_tweet()
+        class Streamer(tweepy.Stream):
+            # Defined "bridge" method, so the self keyword relates to the outer class instead of the inner class
             @staticmethod
             def bridge(obj):
                 self.process_tweet(obj)
@@ -214,7 +254,7 @@ if __name__ == "__main__":
                                              "First value is the MESSAGE that'll be sent, second value is the webhook ENDPOINT, "
                                              "third value is NUMBER_OF_REQUESTS the bot will send to the Endpoint (MIN is 1 and MAX is 10), "
                                              "Usage:\n"
-                                             '--message "This is my message" "https://webhook.com" 3'))
+                                             '--message-params "This is my message" "https://webhook.com" 3'))
 
     parser.add_argument('--crypto-rules', '-c', default=["doge"], nargs='*',
                         help='Name of the crypto that will be searched on the tweet. ' 

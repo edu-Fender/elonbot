@@ -6,6 +6,7 @@
 import unittest
 from unittest.mock import patch
 
+import unidecode
 import elonbot
 from elonbot import ElonBot
 
@@ -29,12 +30,16 @@ class ElonBotTest(unittest.TestCase):
         user_id = bot.get_user_id()
         print(user_id)
 
+    def test_process_tweet(self):
+        user = "edy_fender"
+        bot = ElonBot(user, ["doge", "btc", "etherium"], [["oioi", "https://webhook.site/4aee92fd-ae15-4c03-99dc-964f9dc43129?", 4]], True, None)
+        bot.process_tweet('{"text": "Doge is lovely",  "created_at": "Sat Mar 12 00:13:51 +0000 2022", "user": {"screen_name": "%s"}}' % user)
+
     def test_webhook(self):
         bot = ElonBot("edy_fender", ["doge", "btc", "etherium"],
                       [["oioi", "https://whook.site/4aee92fd-ae15-4c03-99dc-964f9dc43129?", 4]], True, None)
         bot.webhook()
 
     def test_run(self):
-        bot = ElonBot("edy_fender", ["doge", "btc", "etherium"], [["oioi", "https://wehook.site/4aee92fd-ae15-4c03-99dc-964f9dc43129?", 4]], True, None)
+        bot = ElonBot("edy_fender", ["doge", "btc", "etherium"], [["oioi", "https://webhook.site/4aee92fd-ae15-4c03-99dc-964f9dc43129?", 4]], True, None)
         bot.run()
-
